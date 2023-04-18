@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const connection = require ("../db/connection");
+const connection = require("../db/connection");
 
 const Book = connection.define("Book", {
     title: {
@@ -15,4 +15,4 @@ const Book = connection.define("Book", {
     },
 });
 
-module.export = Book;
+module.exports = Book;

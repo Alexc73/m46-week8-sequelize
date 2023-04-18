@@ -1,9 +1,9 @@
 const { Sequelize } = require("sequelize");
 
-const connection = new Sequelize(process.env.MYSQL_URL)
+const connection = new Sequelize(process.env.MYSQL_URL);
 
-connection.authenticate()
+connection.authenticate();
 
 console.log("DB connection is working");
 
-module.exports = connection
+module.exports = connection;
