@@ -1,22 +1,18 @@
 const Book = require("./model");
 
+
 const addBook = async (req, res) => {
   try {
     const book = await Book.create({
       title: req.body.title,
       author: req.body.author,
-      genre: req.body.genre,
       AuthorId: req.body.AuthorId,
+      genre: req.body.genre,
+      GenreId: req.body.GenreId,
     });
-
-    const successResponse = {
-      message: "success",
-      book: book,
-    };
-
     res.status(201).json({ message: "success", book: book });
   } catch (error) {
-    console.log(error);
+    res.status(501).json({ message: "Validation error", error });
   }
 };
 
@@ -24,67 +20,78 @@ const getAllBooks = async (req, res) => {
   try {
     const books = await Book.findAll();
 
-    res.status(200).json({ message: "success", books: books });
+    res.status(201).json({ message: "success", books: books });
   } catch (error) {
-    console.log(error);
+    res.status(501).json({ message: "Validation error", error });
   }
 };
 
-// await User.update(
-//   { lastName: "Doe" },
-//   {
-//     where: {
-//       lastName: null,
-//     },
-//   }
-// );
+const getSingleBookByTitle = async (req, res) => {
+  const { title } = req.params;
 
-// UPDATE Books.author WHERE Books.title = "michaels book"
-
-const updateBook = async (req, res) => {
   try {
-    const updateBook = await Book.update(
-      {
-        author: req.body.newAuthor,
-      },
-      {
-        where: {
-          title: req.body.title,
-        },
-      }
-    );
+    const book = await Book.findOne({ where: { title } });
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
 
-    res.status(201).json({ message: "success", updateResult: updateBook });
+    res.status(200).json({ message: "success", book: book });
   } catch (error) {
-    console.log(error);
+    res.status(501).json({ message: "Validation error", error });
   }
 };
 
-// await User.destroy({
-//   where: {
-//     firstName: "Jane",
-//   },
-// });
+const updateBookByTitle = async (req, res) => {
+  const { title, newAuthor, newGenre, newTitle } = req.body;
 
-const deleteBook = async (req, res) => {
   try {
-    const { title } = req.body;
+    const book = await Book.findOne({ where: { title } });
 
-    const book = await Book.destroy({
-      where: {
-        title: title,
-      },
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    await book.update({
+      author: newAuthor,
+      title: newTitle,
+      genre: newGenre,
     });
 
-    res.status(201).json({ message: "success", result: book });
+    res.status(200).json({ message: "Book updated successfully", book: book });
   } catch (error) {
-    console.log(error);
+    res.status(501).json({ message: "Validation error", error });
+  }
+};
+
+const deleteBookByTitle = async (req, res) => {
+  const { title } = req.body;
+
+  try {
+    const book = await Book.destroy({ where: { title } });
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    res.status(201).json({ message: "Book deleted successfully", book: book });
+  } catch (error) {
+    res.status(501).json({ message: "Validation error", error });
+  }
+};
+
+const deleteAll = async (req, res) => {
+  try {
+    await Book.destroy({ where: {} });
+    res.status(200).json({ message: "All books deleted" });
+  } catch (error) {
+    res.status(501).json({ message: "Validation error", error });
   }
 };
 
 module.exports = {
   addBook,
   getAllBooks,
-  updateBook,
-  deleteBook,
+  getSingleBookByTitle,
+  updateBookByTitle,
+  deleteBookByTitle,
+  deleteAll,
 };
